@@ -4,7 +4,7 @@
 
 -----------------
 
-# r4ven: The companion that holds your grab-bag of utility functions and objects
+# r4ven_utils: The companion that holds your grab-bag of utility functions and objects
 
 > Reimplementing utilities folder across multiple Python projects... Nevermore!
 
@@ -12,7 +12,7 @@
 
 ## What is it?
 
-**r4ven** is all of those of utilities you keep reimplementing across your Python projects, that all got together and decided to live in harmony.
+**r4ven_utils** is all of those of utilities you keep reimplementing across your Python projects, that all got together and decided to live in harmony.
 
 ## Main Features
 Here are some of the utilities that r4ven keep under it's wings:
@@ -29,7 +29,7 @@ Binary installers for the latest released version are available at the [Python
 Package Index (PyPI)](https://pypi.org/project/r4ven_utils).
 ```sh
 # or PyPI
-pip install r4ven
+pip install r4ven_utils
 ```
 
 ## Dependencies
