@@ -29,7 +29,7 @@ Binary installers for the latest released version are available at the [Python
 Package Index (PyPI)](https://pypi.org/project/r4ven_utils).
 ```sh
 # or PyPI
-pip install r4ven_utils
+pip install r4ven-utils
 ```
 
 ## Dependencies
