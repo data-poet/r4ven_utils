@@ -4,7 +4,7 @@
 
 -----------------
 
-# r4ven_utils: The companion that holds your grab-bag of utility functions and objects
+# r4ven: The companion that holds your grab-bag of utility functions and objects
 
 > Reimplementing utilities folder across multiple Python projects... Nevermore!
 
