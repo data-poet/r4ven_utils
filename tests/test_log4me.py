@@ -1,23 +1,6 @@
-#!/usr/bin/env python
-"""Test module of the log4me package.
-This module tests the function_logger() function from log4me.py
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along with
-this program. If not, see <http://www.gnu.org/licenses/>.
 """
-
-__author__ = "Victor Vinci Fantucci"
-__email__ = "victor.v.fantucci@gmail.com"
-__date__ = "2022/10/30"
-__deprecated__ = False
-__license__ = "GPLv3"
-__maintainer__ = "VictorFantucci"
+Test script for my logging related functions.
+"""
 
 import os
 import sys
@@ -73,7 +56,7 @@ def check_file_level(function_name: str, file_level: int) -> None:
     """
     logs_directory = os.getcwd()
     logs_directory = os.path.join(logs_directory, "logs")
-    function_log_path = logs_directory + "/log4me/{}.log".format(function_name)
+    function_log_path = os.path.join(logs_directory, "logs", f"log4me/{function_name}.log")
 
     # Get file object reference for the file.
     with open (file = function_log_path, mode = "r") as file:
@@ -83,12 +66,11 @@ def check_file_level(function_name: str, file_level: int) -> None:
         logging_levels = get_logging_levels(file_level)
 
         if all(logging_level in file_to_be_inspected for logging_level in logging_levels):
-            print("For {}: ".format(function_name))
+            print(f"For {function_name}: ")
             print("All logging levels with a priority greater or equal" +\
-                  " {} are present in the {}.log file. \n".format(file_level, function_name))
+                  f" {file_level} are present in the {function_name}.log file. \n")
         else:
             sys.exit()
-
 
 def f1() -> None:
     """
