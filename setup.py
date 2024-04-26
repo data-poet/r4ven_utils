@@ -36,7 +36,7 @@ setuptools.setup(
     # Project Classifiers:
     classifiers=
     [
-        'Development Status :: 5 - Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Documentation',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
