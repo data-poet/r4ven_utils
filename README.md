@@ -17,7 +17,7 @@
 ## Main Features
 Here are some of the utilities that r4ven keep under it's wings:
 
-  - [**log4me**][log-4-me] - Creation of a logger object specific to the function in which it's called.
+  - [**log4me**][log-4-me] - convenient way to implement logging in Python applications, ensuring that logs are organized and execution times are recorded accurately.
 
    [log-4-me]: r4ven_utils/log4me.py
 
@@ -31,15 +31,6 @@ Package Index (PyPI)](https://pypi.org/project/r4ven_utils).
 # or PyPI
 pip install r4ven-utils
 ```
-
-## Dependencies
-- [**os**][os-module] - This module provides a portable way of using operating system dependent functionality.
-- [**sys**][sys-module] - This module provides access to some variables used or maintained by the interpreter and to functions that interact strongly with the interpreter.
-- [**logging**][logging-module]- This module defines functions and classes which implement a flexible event logging system for applications and libraries.
-
-[os-module]: https://docs.python.org/3/library/os.html
-[sys-module]: https://docs.python.org/3/library/sys.html
-[logging-module]: https://docs.python.org/3/library/logging.htmlhttps://github.com/stub42/pytz
 
 ## License
 [GPLv3](LICENSE)
