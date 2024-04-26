@@ -8,7 +8,7 @@ setuptools.setup(
     # Package Information:
     name='r4ven_utils',
     packages=['r4ven_utils'], # Should match the package folder.
-    version='0.0.5',
+    version='0.0.6',
     license='GPLv3',
 
     # Description Information:
@@ -43,5 +43,5 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
     ],
 
-    download_url="https://github.com/VictorFantucci/r4ven_utils_dev/archive/refs/tag/0.0.5.tar.gz",
+    download_url="https://github.com/VictorFantucci/r4ven_utils_dev/archive/refs/tag/0.0.6.tar.gz",
 )
