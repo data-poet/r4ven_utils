@@ -24,7 +24,8 @@ setuptools.setup(
     # Project URLs:
     project_urls =
     {
-        "Bug Tracker": "https://github.com/VictorFantucci/r4ven_utils_dev/issues"
+        "Bug Tracker": "https://github.com/VictorFantucci/r4ven_utils_dev/issues",
+        "Download": "https://github.com/VictorFantucci/r4ven_utils/releases/tag/alpha"
     },
 
     # Project Requirements:
@@ -41,7 +42,5 @@ setuptools.setup(
         'Topic :: Software Development :: Documentation',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3',
-    ],
-
-    download_url="https://github.com/VictorFantucci/r4ven_utils_dev/archive/refs/tag/0.0.6.tar.gz",
+    ]
 )
