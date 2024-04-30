@@ -8,7 +8,7 @@ setuptools.setup(
     # Package Information:
     name='r4ven_utils',
     packages=['r4ven_utils'], # Should match the package folder.
-    version='0.0.6',
+    version='0.0.7',
     license='GPLv3',
 
     # Description Information:

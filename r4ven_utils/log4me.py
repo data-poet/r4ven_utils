@@ -2,19 +2,33 @@
 This module contains all logging related functions.
 """
 
+# Import dependencies
 import os
+import sys
 import inspect
 import logging
 import time
 import functools
 
-def function_logger(file_mode: str = "w",
+# Getting the name of the directory where the this file is present.
+current_directory = os.path.dirname(os.path.realpath(__file__))
+
+# Getting the parent directory name where the current directory is present.
+parent_directory = os.path.dirname(current_directory)
+
+# Adding the parent directory to the sys.path.
+sys.path.append(parent_directory)
+
+def function_logger(script_name: str,
+                    file_mode: str = "w",
                     file_level: int = logging.INFO,
                     console_level: int = None) -> logging.Logger:
     """
     Creates a logger object specific to the function in which it's called.
 
     Args:
+        script_name (str): Name of the script/module in which the function is called.
+
         file_mode (str): A string that define which mode you want to open the log file.
         Defaults to "w" - Write - Opens a file for writing, creates the file if it does not exist.
 
@@ -28,8 +42,8 @@ def function_logger(file_mode: str = "w",
         logging.Logger: Logger object of the specific function in which this
         function is called.
     """
+
     create_logs_folder()
-    script_name = os.path.basename(__file__).removesuffix(".py")
     create_script_logs_folder(script_name)
 
     caller_frame = inspect.stack()[1]
@@ -74,6 +88,7 @@ def create_logs_folder() -> None:
     Check if there's a logs folder (/logs) in the current directory,
     if there isn't, create it.
     """
+
     project_directory = os.getcwd()
     logs_directory = os.path.join(project_directory, "logs")
     if not os.path.exists(logs_directory):
@@ -88,6 +103,7 @@ def create_script_logs_folder(script_name: str) -> None:
         script_name (str): The name of the script that's calling the function
         function_logger.
     """
+
     project_directory = os.getcwd()
     script_logs_directory = os.path.join(project_directory, "logs")
     final_directory = os.path.join(script_logs_directory, script_name)
@@ -104,6 +120,7 @@ def calculate_execution_time(logger: logging.Logger):
     Returns:
         function: Decorated function.
     """
+
     def function_decorator(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
