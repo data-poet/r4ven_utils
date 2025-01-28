@@ -8,7 +8,7 @@ setuptools.setup(
     # Package Information:
     name='r4ven_utils',
     packages=['r4ven_utils'], # Should match the package folder.
-    version='0.0.7',
+    version='0.1.0',
     license='GPLv3',
 
     # Description Information:
@@ -37,7 +37,7 @@ setuptools.setup(
     # Project Classifiers:
     classifiers=
     [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Documentation',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',

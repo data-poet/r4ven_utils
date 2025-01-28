@@ -3,147 +3,218 @@ This module contains all logging related functions.
 """
 
 # Import dependencies
+
+import io
 import os
-import sys
+import glob
 import inspect
 import logging
-import time
-import functools
+from contextlib import redirect_stdout, redirect_stderr
+from typing import Callable, Tuple
 
-# Getting the name of the directory where the this file is present.
-current_directory = os.path.dirname(os.path.realpath(__file__))
+class r4venLogManager:
+    def __init__(self, base_log_dir: str):
+        """
+        Initializes the LogManager with a base directory for logs.
 
-# Getting the parent directory name where the current directory is present.
-parent_directory = os.path.dirname(current_directory)
+        Args:
+            base_log_dir (str): Path to the base directory where logs will be stored.
+        """
+        self.base_log_dir = base_log_dir
+        self.logs_directory = os.path.join(base_log_dir, "logs")
+        self._ensure_directory(self.logs_directory)
 
-# Adding the parent directory to the sys.path.
-sys.path.append(parent_directory)
+    def function_logger(self,
+                        script_path: str,
+                        file_mode: str = "w",
+                        file_level: int = logging.INFO,
+                        console_level: int = None) -> logging.Logger:
+        """
+        Creates a logger object specific to the calling context (module, standalone function, or class method).
 
-def function_logger(script_name: str,
-                    file_mode: str = "w",
-                    file_level: int = logging.INFO,
-                    console_level: int = None) -> logging.Logger:
-    """
-    Creates a logger object specific to the function in which it's called.
+        Args:
+            script_path (str): Full path of the script that is calling this function.
+            file_mode (str): File mode for the log file (default: "w" for write).
+            file_level (int): Logging level that will be written in the log file (default: logging.INFO).
+            console_level (int, optional): Logging level that will be displayed in the console.
 
-    Args:
-        script_name (str): Name of the script/module in which the function is called.
+        Returns:
+            logging.Logger: Logger object.
+        """
+        # Create necessary folders for the log file
+        script_log_file_path = self._create_script_logs_folder(script_path)
 
-        file_mode (str): A string that define which mode you want to open the log file.
-        Defaults to "w" - Write - Opens a file for writing, creates the file if it does not exist.
+        # Inspect the calling frame
+        caller_frame = inspect.stack()[1]
+        module_name = os.path.basename(script_path).replace(".py", "")
 
-        file_level (int): Logging level that will be written in the log file.
-        Defaults to logging.INFO.
+        # Detect the calling context: module, function, or class method
+        if caller_frame.function == "<module>":
+            # Module-level logger (e.g., code outside any function or class)
+            log_name = module_name
+        else:
+            # Determine if the caller is within a class
+            class_name = None
+            if "self" in caller_frame.frame.f_locals:
+                # 'self' exists in the caller's local variables, indicating a method
+                class_name = caller_frame.frame.f_locals["self"].__class__.__name__
 
-        console_level (int, optional): Logging level that will be displayed at the console.
-        Defaults to None.
+            # Construct the logger name based on the context
+            if class_name:
+                log_name = f"{module_name}.{class_name}.{caller_frame.function}"
+            else:
+                # Standalone function
+                log_name = f"{module_name}.{caller_frame.function}"
 
-    Returns:
-        logging.Logger: Logger object of the specific function in which this
-        function is called.
-    """
+        # Construct the full log file path
+        log_file_path = os.path.join(script_log_file_path, f"{log_name}.log")
 
-    create_logs_folder()
-    create_script_logs_folder(script_name)
+        # Ensure the directory for the log file exists
+        self._ensure_directory(os.path.dirname(log_file_path))
 
-    caller_frame = inspect.stack()[1]
+        # Ensure the log file exists
+        if not os.path.exists(log_file_path):
+            open(log_file_path, "a").close()
 
-    if caller_frame[3] == "<module>":
-        # If the caller is the main module (<module>), get the main function name
-        function_name = inspect.getmodulename(caller_frame[1])
-    else:
-        # Otherwise, get the name of the calling function
-        function_name = caller_frame[3]
+        # Initialize the logger
+        logger = logging.getLogger(log_name)
 
-    logger = logging.getLogger(function_name)
+        # Clear any existing handlers to avoid duplicate logs
+        if logger.hasHandlers():
+            logger.handlers.clear()
 
-    # Check if handlers are already present and if so, clear them before adding new handlers.
-    if (logger.hasHandlers()):
-        logger.handlers.clear()
+        # Set logger to log all messages
+        logger.setLevel(logging.DEBUG)
 
-    # By default, logs all messages.
-    logger.setLevel(logging.DEBUG)
+        # Add console handler if console_level is set
+        if console_level is not None:
+            ch = logging.StreamHandler()
+            ch.setLevel(console_level)
+            ch_format = logging.Formatter("%(levelname)-8s - %(message)s")
+            ch.setFormatter(ch_format)
+            logger.addHandler(ch)
 
-    if console_level != None:
-        # StreamHandler logs to console.
-        ch = logging.StreamHandler()
-        ch.setLevel(console_level)
-        ch_format = logging.Formatter("%(levelname)-8s - %(message)s")
-        ch.setFormatter(ch_format)
-        logger.addHandler(ch)
+        # Add file handler for writing logs to a file
+        fh = logging.FileHandler(log_file_path, mode=file_mode)
+        fh.setLevel(file_level)
+        fh_format = logging.Formatter("%(asctime)s - %(lineno)d - %(levelname)-8s - %(message)s")
+        fh.setFormatter(fh_format)
+        logger.addHandler(fh)
 
-    # FileHandler logs to file.
-    fh = logging.FileHandler(r"logs/{0}/{1}.log".\
-        format(script_name, function_name), mode = file_mode)
-    fh.setLevel(file_level)
-    fh_format = logging.\
-        Formatter("%(asctime)s - %(lineno)d - %(levelname)-8s - %(message)s")
-    fh.setFormatter(fh_format)
-    logger.addHandler(fh)
+        return logger
 
-    return logger
+    def merge_log_files(self, output_log_path: str, log_files_pattern: str = "*.log") -> None:
+        """
+        Merges multiple log files from a specified folder into a single log file.
 
-def create_logs_folder() -> None:
-    """
-    Check if there's a logs folder (/logs) in the current directory,
-    if there isn't, create it.
-    """
+        Args:
+            output_log_path (str): The output file path for the merged log.
+            log_files_pattern (str, optional): The pattern for .log files (adjust if needed)
+                Defaults to "*.log".
 
-    project_directory = os.getcwd()
-    logs_directory = os.path.join(project_directory, "logs")
-    if not os.path.exists(logs_directory):
-        os.makedirs(logs_directory)
+        Returns:
+            None
+        """
 
-def create_script_logs_folder(script_name: str) -> None:
-    """
-    Check if there's a log folder for the script that is running
-    in the project directory (/logs/script_name), if there isn't, create it.
+        self._ensure_directory(os.path.join(self.logs_directory, "_output_"))
 
-    Args:
-        script_name (str): The name of the script that's calling the function
-        function_logger.
-    """
+        log_files = sorted(glob.glob(os.path.join(self.logs_directory, log_files_pattern)),
+                           key=os.path.getmtime)
 
-    project_directory = os.getcwd()
-    script_logs_directory = os.path.join(project_directory, "logs")
-    final_directory = os.path.join(script_logs_directory, script_name)
-    if not os.path.exists(final_directory):
-        os.makedirs(final_directory)
+        with open(output_log_path, "w") as merged_log:
+            for log_file in log_files:
+                with open(log_file, "r") as current_log:
+                    merged_log.write(current_log.read())
 
-def calculate_execution_time(logger: logging.Logger):
-    """
-    Decorator that calculates the execution time of a function and logs this time.
+    def clear_logs_folder(self, log_files_format=".log") -> None:
+        """
+        Removes all files of a specified format from the 'logs' directory.
 
-    Args:
-        logger (logging.Logger): Logger object returned by the function function_logger.
+        This function deletes all files within the given directory that match the specified
+        file format (default is '.log'). It ensures that only files with the designated
+        format are targeted, leaving others unaffected.
 
-    Returns:
-        function: Decorated function.
-    """
+        Args:
+            log_files_format (str): The file extension format to delete (default is '.log').
 
-    def function_decorator(function):
-        @functools.wraps(function)
-        def wrapper(*args, **kwargs):
-            """
-            Wrapper function that calculates the execution time of the decorated function and logs it.
+        Returns:
+            None
+        """
 
-            Args:
-                *args: Positional arguments of the function.
-                **kwargs: Keyword arguments of the function.
+        self._delete_files_of_specific_format(self.logs_directory, log_files_format)
 
-            Returns:
-                Any: Result of the decorated function.
-            """
-            start_time = time.time()
-            result = function(*args, **kwargs)
-            end_time = time.time()
-            execution_time = end_time - start_time
+    def capture_terminal_output(self, func: Callable, *args, **kwargs) -> Tuple[str, None]:
+        """
+        Runs a function and captures all terminal output (stdout, stderr, and logs).
 
-            logger.info(f"The function {function.__name__}"+\
-                f" was executed in {int(execution_time)} seconds.")
+        Args:
+            func (Callable): The function to run and capture output from.
+            *args: Positional arguments to pass to `func`.
+            **kwargs: Keyword arguments to pass to `func`.
 
-            return result
+        Returns:
+            Tuple[str, None]: Captured output as a string, and None if function has no return.
+        """
 
-        return wrapper
+        buffer = io.StringIO()
 
-    return function_decorator
+        class BufferHandler(logging.StreamHandler):
+            def __init__(self, stream):
+                super().__init__(stream)
+
+        log_handler = BufferHandler(buffer)
+        log_handler.setFormatter(logging.Formatter("%(levelname)-8s - %(message)s"))
+
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+        logger.addHandler(log_handler)
+
+        try:
+            with redirect_stdout(buffer), redirect_stderr(buffer):
+                result = func(*args, **kwargs)
+        finally:
+            logger.removeHandler(log_handler)
+
+        output = buffer.getvalue()
+        buffer.close()
+        return output, result
+
+    def _create_script_logs_folder(self, script_path: str) -> str:
+        """
+        Creates a logs folder for the script with the same directory structure as the script itself.
+        For example, if the script is located at "src/data/script.py", it will create the folder
+        structure "logs/data/script" inside the specified logs directory.
+
+        Args:
+            logs_directory (str): Base directory where the "logs" folder is located.
+            script_path (str): Full path of the script that is calling this function.
+
+        Returns:
+            str: Logs folder for the script with the same directory structure as the script itself.
+        """
+        project_directory = self.base_log_dir
+        relative_script_path = os.path.relpath(script_path, project_directory)
+        script_log_path = os.path.splitext(relative_script_path)[0]
+        final_directory = os.path.join(self.logs_directory, script_log_path)
+        self._ensure_directory(final_directory)
+        return final_directory
+
+    @staticmethod
+    def _ensure_directory(directory: str) -> None:
+        """Ensures a directory exists, creating it if necessary."""
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+    @staticmethod
+    def _delete_files_of_specific_format(path: str, file_extension: str) -> None:
+        """
+        Delete files of a specific format in the specified path and all subfolders.
+        """
+        for root, dirs, files in os.walk(path, topdown=False):
+            for file in files:
+                if file.endswith(file_extension):
+                    os.remove(os.path.join(root, file))
+            for folder in dirs:
+                folder_path = os.path.join(root, folder)
+                if not os.listdir(folder_path):
+                    os.rmdir(folder_path)
