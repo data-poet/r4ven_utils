@@ -61,10 +61,10 @@ class r4venLogManager:
 
             # Construct the logger name based on the context
             if class_name:
-                log_name = f"{module_name}.{class_name}.{caller_frame.function}"
+                log_name = f"{class_name}.{caller_frame.function}"
             else:
                 # Standalone function
-                log_name = f"{module_name}.{caller_frame.function}"
+                log_name = f"{caller_frame.function}"
 
         # Construct the full log file path
         log_file_path = os.path.join(script_log_file_path, f"{log_name}.log")
