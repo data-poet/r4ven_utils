@@ -10,7 +10,7 @@ import glob
 import inspect
 import logging
 from contextlib import redirect_stdout, redirect_stderr
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Union
 
 class r4venLogManager:
     def __init__(self, base_log_dir: str):
@@ -28,7 +28,8 @@ class r4venLogManager:
                         script_path: str,
                         file_mode: str = "w",
                         file_level: int = logging.INFO,
-                        console_level: int = None) -> logging.Logger:
+                        console_level: int = None,
+                        helper_functions: Union[str, list] = None) -> logging.Logger:
         """
         Creates a logger object specific to the calling context (module, standalone function, or class method).
 
@@ -37,15 +38,28 @@ class r4venLogManager:
             file_mode (str): File mode for the log file (default: "w" for write).
             file_level (int): Logging level that will be written in the log file (default: logging.INFO).
             console_level (int, optional): Logging level that will be displayed in the console.
+            helper_functions (list, optional): List of helper function names to skip when determining the log file name.
 
         Returns:
             logging.Logger: Logger object.
         """
+
+        if helper_functions is None:
+            helper_functions = ["get_logger","function_logger"]
+        elif isinstance(helper_functions, str):
+            helper_functions = [helper_functions]
+
         # Create necessary folders for the log file
         script_log_file_path = self._create_script_logs_folder(script_path)
 
         # Inspect the calling frame
-        caller_frame = inspect.stack()[1]
+        # Iterate over the call stack to find the first non-helper method
+        for frame in inspect.stack():
+            if frame.function not in helper_functions:
+                caller_frame = frame
+                break
+
+        # Identify the module name
         module_name = os.path.basename(script_path).replace(".py", "")
 
         # Detect the calling context: module, function, or class method
