@@ -23,7 +23,7 @@ Here are some of the utilities that r4ven keep under it's wings:
 
 ## Where to get it
 The source code is currently hosted on GitHub at:
-https://github.com/data-poet/r4ven_utils_dev
+https://github.com/data-poet/r4ven_utils
 
 Binary installers for the latest released version are available at the [Python
 Package Index (PyPI)](https://pypi.org/project/r4ven_utils).
