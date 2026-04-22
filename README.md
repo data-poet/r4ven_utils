@@ -23,7 +23,7 @@ Here are some of the utilities that r4ven keep under it's wings:
 
 ## Where to get it
 The source code is currently hosted on GitHub at:
-https://github.com/VictorFantucci/r4ven_utils_dev
+https://github.com/data-poet/r4ven_utils_dev
 
 Binary installers for the latest released version are available at the [Python
 Package Index (PyPI)](https://pypi.org/project/r4ven_utils).
@@ -49,8 +49,8 @@ This is how I felt every time I needed re-implement utilities folders over and o
 
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
 
-If you are simply looking to start working with the r4ven codebase, navigate to the [GitHub "issues" tab](https://github.com/VictorFantucci/r4ven_utils_dev/issues) and start looking through interesting issues.
+If you are simply looking to start working with the r4ven codebase, navigate to the [GitHub "issues" tab](https://github.com/data-poet/r4ven_utils_dev/issues) and start looking through interesting issues.
 
 Or maybe through using r4ven you have an idea of your own or are looking for something in the documentation and thinking ‘this can be improved’...you can do something about it!
 
-Feel free to ask questions through my email which can be found on the main page of my [**Github**](https://github.com/VictorFantucci).
+Feel free to ask questions through my email which can be found on the main page of my [**Github**](https://github.com/data-poet).
